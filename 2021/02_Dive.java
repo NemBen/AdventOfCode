@@ -2,8 +2,7 @@ package nemben.aoc.d02;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.io.InputStream;
-import java.util.Scanner;
+import nemben.aoc.InputReader;
 
 public class Dive {
   private enum Direction {
@@ -30,22 +29,16 @@ public class Dive {
   }
 
   private static ImmutableList<Instruction> readInstructions(String name) {
-    try (Scanner scn = new Scanner(getInputStream(name))) {
-      ImmutableList.Builder<Instruction> builder = new ImmutableList.Builder<>();
-      while (scn.hasNext()) {
-        Direction direction = DIRECTIONS.get(scn.next(DIRECTION_PATTERN));
-        long units = scn.nextLong();
-        builder.add(new Instruction(direction, units));
-      }
-      return builder.build();
-    }
+    return InputReader.readSimpleInput(
+        name,
+        scn -> {
+          Direction direction = DIRECTIONS.get(scn.next(DIRECTION_PATTERN));
+          long units = scn.nextLong();
+          return new Instruction(direction, units);
+        });
   }
 
-  public static final String DIRECTION_PATTERN = "[a-z]+";
-
-  private static InputStream getInputStream(String name) {
-    return Dive.class.getClassLoader().getResourceAsStream(name);
-  }
+  private static final String DIRECTION_PATTERN = "[a-z]+";
 
   private static long playSimpleInstructions(ImmutableList<Instruction> instructions) {
     long x = 0, y = 0;

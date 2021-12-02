@@ -2,23 +2,11 @@ package nemben.aoc.d01;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
-import java.io.InputStream;
-import java.util.Scanner;
+import nemben.aoc.InputReader;
 
 public class SonarSweep {
-
   private static ImmutableList<Long> readReport(String name) {
-    try (Scanner scn = new Scanner(getInputStream(name))) {
-      ImmutableList.Builder<Long> builder = new ImmutableList.Builder<>();
-      while (scn.hasNextLong()) {
-        builder.add(scn.nextLong());
-      }
-      return builder.build();
-    }
-  }
-
-  private static InputStream getInputStream(String name) {
-    return SonarSweep.class.getClassLoader().getResourceAsStream(name);
+    return InputReader.readSimpleInput(name, scn -> scn.nextLong());
   }
 
   private static int countIncreases(long[] report, int window) {
