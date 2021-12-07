@@ -21,8 +21,9 @@ public class TheTreacheryOfWhales {
 
   private static long part1(ImmutableList<Integer> positions) {
     ImmutableList<Integer> sorted = sortedCopyOf(positions);
-    int median = sorted.get(sorted.size() % 2 == 0 ? sorted.size() / 2 : sorted.size() / 2 + 1);
-    return distanceSum(positions, i -> simpleDist(median, i));
+    return Math.min(
+        distanceSum(positions, i -> simpleDist(sorted.get(sorted.size() / 2), i)),
+        distanceSum(positions, i -> simpleDist(sorted.get(sorted.size() / 2 + 1), i)));
   }
 
   private static long part2(ImmutableList<Integer> positions) {
