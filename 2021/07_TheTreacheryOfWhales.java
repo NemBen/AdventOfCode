@@ -37,7 +37,7 @@ public class TheTreacheryOfWhales {
   }
 
   private static long sqrDist(long a, long b) {
-    long dist = Math.abs(a + 1 - b);
+    long dist = Math.abs(a - b);
     return dist * (dist + 1) / 2;
   }
 
