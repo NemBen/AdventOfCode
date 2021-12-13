@@ -23,12 +23,16 @@ public class TransparentOrigami {
     Point apply(Point p) {
       switch (axis()) {
         case X:
-          return p.x() > value() ? Point.of(2 * value() - p.x(), p.y()) : p;
+          return p.x() > value() ? Point.of(fold(p.x()), p.y()) : p;
         case Y:
-          return p.y() > value() ? Point.of(p.x(), 2 * value() - p.y()) : p;
+          return p.y() > value() ? Point.of(p.x(), fold(p.y())) : p;
         default:
           throw new AssertionError();
       }
+    }
+
+    private int fold(int v) {
+      return 2 * value() - v;
     }
 
     static Fold of(Axis axis, int value) {
@@ -39,6 +43,8 @@ public class TransparentOrigami {
       String[] parts = instruction.substring(FOLD_INSTRUCTION_PREFIX.length()).split("=");
       return Fold.of(Axis.valueOf(parts[0].toUpperCase()), Integer.valueOf(parts[1]));
     }
+
+    private static final String FOLD_INSTRUCTION_PREFIX = "fold along ";
   }
 
   private static InputPair<ImmutableList<Point>, ImmutableList<Fold>> readInput(String name) {
@@ -63,8 +69,6 @@ public class TransparentOrigami {
           return builder.build();
         });
   }
-
-  private static final String FOLD_INSTRUCTION_PREFIX = "fold along ";
 
   private static long part1(ImmutableList<Point> points, Fold fold) {
     return points.stream().map(fold::apply).distinct().count();
