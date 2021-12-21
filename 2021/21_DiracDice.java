@@ -28,6 +28,14 @@ public class DiracDice {
     }
   }
 
+  private static int nextPosition(int current, int roll) {
+    int next = current + roll;
+    while (next > 10) {
+      next -= 10;
+    }
+    return next;
+  }
+
   private static int part1(int first, int second) {
     int player1 = first, player2 = second;
     int sum1 = 0, sum2 = 0;
@@ -56,11 +64,11 @@ public class DiracDice {
   }
 
   private static long part2(Integer first, Integer second) {
-    long[] diceMul = new long[3 * 3 + 1];
+    long[] dice = new long[3 * 3 + 1];
     for (int i = 1; i <= 3; ++i) {
       for (int j = 1; j <= 3; ++j) {
         for (int k = 1; k <= 3; ++k) {
-          diceMul[i + j + k] += 1;
+          dice[i + j + k] += 1;
         }
       }
     }
@@ -68,51 +76,34 @@ public class DiracDice {
     long p1Wins = 0;
     long p2Wins = 0;
 
-    long[][][][] occurrences = new long[11][11][31][31];
-    occurrences[first][second][0][0] = 1;
+    long[][][][] currentStates = new long[11][11][31][31];
+    currentStates[first][second][0][0] = 1;
 
-    boolean hasUnfinished = true;
-    while (hasUnfinished) {
-      hasUnfinished = false;
+    for (int turn = 0; turn <= 8; ++turn) {
+      long[][][][] nextStates = new long[11][11][31][31];
 
-      long[][][][] nextOccurrence = new long[11][11][31][31];
       for (int p1 = 1; p1 <= 10; ++p1) {
         for (int p2 = 1; p2 <= 10; ++p2) {
+          long[][] currentPos = currentStates[p1][p2];
 
           for (int roll1 = 3; roll1 <= 9; ++roll1) {
-            int p1Next = p1 + roll1;
-            if (p1Next > 10) {
-              p1Next -= 10;
-            }
+            int p1Next = nextPosition(p1, roll1);
+            long[][] p1Pos = nextStates[p1Next][p2];
 
             for (int score1 = 21 - p1Next; score1 < 21; ++score1) {
-              for (int score2 = 0; score2 < 21; ++score2) {
-                long start = occurrences[p1][p2][score1][score2];
-                if (start == 0) {
-                  continue;
-                }
-                hasUnfinished = true;
-
-                nextOccurrence[p1Next][p2][score1 + p1Next][score2] += start * diceMul[roll1];
+              for (int score2 = turn; score2 < 21; ++score2) {
+                p1Pos[score1 + p1Next][score2] += currentPos[score1][score2] * dice[roll1];
               }
             }
 
             for (int roll2 = 3; roll2 <= 9; ++roll2) {
-              int p2Next = p2 + roll2;
-              if (p2Next > 10) {
-                p2Next -= 10;
-              }
+              int p2Next = nextPosition(p2, roll2);
+              long[][] p2Pos = nextStates[p1Next][p2Next];
 
-              for (int score1 = 0; score1 < 21 - p1Next; ++score1) {
-                for (int score2 = 0; score2 < 21; ++score2) {
-                  long start = occurrences[p1][p2][score1][score2];
-                  if (start == 0) {
-                    continue;
-                  }
-                  hasUnfinished = true;
-
-                  nextOccurrence[p1Next][p2Next][score1 + p1Next][score2 + p2Next] +=
-                      start * diceMul[roll1] * diceMul[roll2];
+              for (int score1 = turn; score1 < 21 - p1Next; ++score1) {
+                for (int score2 = turn; score2 < 21; ++score2) {
+                  p2Pos[score1 + p1Next][score2 + p2Next] +=
+                      currentPos[score1][score2] * dice[roll1] * dice[roll2];
                 }
               }
             }
@@ -122,20 +113,21 @@ public class DiracDice {
 
       for (int p1 = 1; p1 <= 10; ++p1) {
         for (int p2 = 1; p2 <= 10; ++p2) {
+          long[][] pos = nextStates[p1][p2];
           for (int score1 = 21; score1 <= 30; ++score1) {
             for (int score2 = 0; score2 <= 30; ++score2) {
-              p1Wins += nextOccurrence[p1][p2][score1][score2];
+              p1Wins += pos[score1][score2];
             }
           }
           for (int score1 = 0; score1 < 21; ++score1) {
             for (int score2 = 21; score2 <= 30; ++score2) {
-              p2Wins += nextOccurrence[p1][p2][score1][score2];
+              p2Wins += pos[score1][score2];
             }
           }
         }
       }
 
-      occurrences = nextOccurrence;
+      currentStates = nextStates;
     }
     return Math.max(p1Wins, p2Wins);
   }
